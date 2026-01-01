@@ -70,41 +70,9 @@ local Label = PlayerTab:CreateLabel("• Enter - Delete object by path", "info")
 
 local PlayerTab = Window:CreateTab("INF STAMINA", "rocket")
 local Button = PlayerTab:CreateButton({
-   Name = "TRUN ON[FIXED ON 05/31]",
+   Name = "TRUN ON[BROKEN, A FIX WILL BE SOON]",
    Callback = function()
-      while true do
-         task.wait()
-         local aux = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Upbolt/Hydroxide/revision/ohaux.lua"))()
-         local Players = game:GetService("Players")
-         local LocalPlayer = Players.LocalPlayer
-         local scriptPath = nil
-         local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-         if Character then
-            scriptPath = Character:FindFirstChild("ClientCode")
-         end
-         if not scriptPath then
-            local PlayerScripts = LocalPlayer:WaitForChild("PlayerScripts")
-            scriptPath = PlayerScripts:FindFirstChild("ClientCode")
-         end
-         if not scriptPath then
-            continue
-         end
-         local closureName = "Unnamed function"
-         local upvalueIndex = 76
-         local closureConstants = {
-            [1] = "AssemblyLinearVelocity",
-            [2] = "Magnitude",
-            [3] = "Enum",
-            [4] = "MouseBehavior",
-            [5] = "LockCenter",
-            [6] = Enum.MouseBehavior.LockCenter
-         }
-         local closure = aux.searchClosure(scriptPath, closureName, upvalueIndex, closureConstants)
-         local value = math.huge
-         if closure then
-            debug.setupvalue(closure, upvalueIndex, value)
-         end
-      end
+     
    end,
 })
 
