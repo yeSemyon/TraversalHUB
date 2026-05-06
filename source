@@ -29,14 +29,14 @@ local Window = Rayfield:CreateWindow({
    }
 })
 local PlayerTab = Window:CreateTab("UPDATE LOGS", "square-pen")
-local PlyerParagraph = PlayerTab:CreateParagraph({Title = "LAST UPDATE", Content = "10/22/2025"})
-local PlyerParagraph = PlayerTab:CreateParagraph({Title = "NEW FEATURES", Content = "ADDED DELETE TOOL,// ADDED ABILITY TO DISABLE ENEMIES AI SYS,// ADDED ABILITY TO REMOVE ENEMIES LEGS,// ADDED ABILITY TO REMOVE ENEMIES WEAPONS,// ADDED WEAPONS SPAWNER (BRINGS WEAPONS FROM WORKSPACE,// UPDATED GODMODE TO BE STABLE)"})
+local PlyerParagraph = PlayerTab:CreateParagraph({Title = "LAST UPDATE", Content = "05/06/2026"})
+local PlyerParagraph = PlayerTab:CreateParagraph({Title = "NEW FEATURES", Content = "ADDED ONE-HIT (LIKE INSTANT KILL) / ADDED 0 STAMINACOST TO ALL WEAPONS"})
 local Label = PlayerTab:CreateLabel("PRESS M TO UNLOCK CURSOR, K TO OPEN CLOSE THIS UI", "info")
 
 
 local PlayerTab = Window:CreateTab("GODMODE", "heart-pulse")
 local Button = PlayerTab:CreateButton({
-   Name = "Trun ON",
+   Name = "Trun ON (WORKING BUT CAN CRASH YOUR CLIENT WAIT FOR UPDATE)",
    Callback = function()
       while true do
          task.wait()
@@ -68,13 +68,13 @@ local Label = PlayerTab:CreateLabel("• V - Toggle Delete Mode", "info")
 local Label = PlayerTab:CreateLabel("• E - Delete Targeted Object", "info")
 local Label = PlayerTab:CreateLabel("• Enter - Delete object by path", "info")
 
-local PlayerTab = Window:CreateTab("INF STAMINA", "rocket")
-local Button = PlayerTab:CreateButton({
-   Name = "TRUN ON[BROKEN, A FIX WILL BE SOON]",
-   Callback = function()
+--local PlayerTab = Window:CreateTab("INF STAMINA", "rocket")
+--local Button = PlayerTab:CreateButton({
+ --  Name = "TRUN ON[BROKEN, A FIX WILL BE SOON]",
+  -- Callback = function()
      
-   end,
-})
+  -- end,
+--})
 
 local PlayerTab = Window:CreateTab("ENEMIES", "skull")
 local Button = PlayerTab:CreateButton({
@@ -220,6 +220,41 @@ for _, folderName in pairs(workspaceFolders) do
         end
     end
 end
+   end,
+})
+local Label = PlayerTab:CreateLabel("SPAM + MOVING = DUPLICATE WEAPONS!", "info")
+local Label = PlayerTab:CreateLabel("CLICK BUTTON BELOW TO MOD WEAPONS", "info")
+local Button = PlayerTab:CreateButton({
+  Name = "APPLY ONE-HIT MOD TO WEAPONS",
+  Callback = function()
+     local char = game.Players.LocalPlayer.Character
+local scriptPath = char:FindFirstChild("ClientCode")
+local weapons = {"Bat", "Knife", "Axe", "Machete", "Crowbar", "Chainsaw", "Katana"}
+
+for _, tool in pairs(char:GetChildren()) do
+    if table.find(weapons, tool.Name) then
+        tool:SetAttribute("StaminaCost", 0)
+        tool:SetAttribute("Damage", 100)
+    end
+end
+
+local staminaFunction = nil
+for _, v in pairs(getgc()) do
+    if type(v) == "function" and getfenv(v).script == scriptPath then
+        local upvalues = debug.getupvalues(v)
+        if upvalues[76] == 100 or (type(upvalues[76]) == "number" and upvalues[76] > 0) then
+            staminaFunction = v
+            break
+        end
+    end
+end
+
+game:GetService("RunService").Heartbeat:Connect(function()
+    if staminaFunction then
+        debug.setupvalue(staminaFunction, 76, 100)
+    end
+end)
+
    end,
 })
 
