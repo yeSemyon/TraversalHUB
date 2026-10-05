@@ -1,359 +1,898 @@
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RS = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local LP = Players.LocalPlayer
 
-local Window = Rayfield:CreateWindow({
-   Name = "Traversal HUB",
-   LoadingTitle = "Traversal HUB",
-   LoadingSubtitle = "Made by Semyon",
-   Theme = "Default",
-   DisableRayfieldPrompts = true,
-   DisableBuildWarnings = true,
-   ConfigurationSaving = {
-      Enabled = true,
-      FolderName = nil,
-      FileName = "Big Hub"
-   },
-   Discord = {
-      Enabled = false,
-      Invite = "noinvitelink",
-      RememberJoins = true
-   },
-   KeySystem = false,
-   KeySettings = {
-      Title = "TRAVERSAL KEYSYSTEM", -- hell nah
-      Subtitle = "",
-      Note = "",
-      FileName = "",
-      SaveKey = true,
-      GrabKeyFromSite = false,
-      Key = "",
-   }
-})
-local PlayerTab = Window:CreateTab("UPDATE LOGS", "square-pen")
-local PlyerParagraph = PlayerTab:CreateParagraph({Title = "LAST UPDATE", Content = "05/06/2026"})
-local PlyerParagraph = PlayerTab:CreateParagraph({Title = "NEW FEATURES", Content = "ADDED ONE-HIT (LIKE INSTANT KILL) / ADDED 0 STAMINACOST TO ALL WEAPONS"})
-local Label = PlayerTab:CreateLabel("PRESS M TO UNLOCK CURSOR, K TO OPEN CLOSE THIS UI", "info")
-
-
-local PlayerTab = Window:CreateTab("GODMODE", "heart-pulse")
-local Button = PlayerTab:CreateButton({
-   Name = "Trun ON (WORKING BUT CAN CRASH YOUR CLIENT WAIT FOR UPDATE)",
-   Callback = function()
-      while true do
-         task.wait()
-         local args = {
-            [1] = {
-               [1] = {
-                  [1] = "\25",
-                  [2] = game:GetService("Players").LocalPlayer.Character.Humanoid,
-                  [3] = math.huge
-               }
-            }
-         }
-         game:GetService("ReplicatedStorage"):WaitForChild("RemoteEvent"):FireServer(unpack(args))
-      end
-   end,
-})
-
-local PlayerTab = Window:CreateTab("DELETE TOOL", "eraser")
-local Button = PlayerTab:CreateButton({
-   Name = "ENABLE UI",
-   Callback = function()
-    loadstring(game:HttpGet('https://raw.githubusercontent.com/YegozovutSemyon/TraversalHUB/refs/heads/main/deletemenu'))()
-
-    end,
-})
-
-local Label = PlayerTab:CreateLabel("TO USE DELETE BY PATH, USE INFINITE YILED, AND EXECUTE Dex Command", "info")
-local Label = PlayerTab:CreateLabel("• V - Toggle Delete Mode", "info")
-local Label = PlayerTab:CreateLabel("• E - Delete Targeted Object", "info")
-local Label = PlayerTab:CreateLabel("• Enter - Delete object by path", "info")
-
---local PlayerTab = Window:CreateTab("INF STAMINA", "rocket")
---local Button = PlayerTab:CreateButton({
- --  Name = "TRUN ON[BROKEN, A FIX WILL BE SOON]",
-  -- Callback = function()
-     
-  -- end,
---})
-
-local PlayerTab = Window:CreateTab("ENEMIES", "skull")
-local Button = PlayerTab:CreateButton({
-   Name = "REMOVE LEGS FROM ENEMIES",
-   Callback = function()
-   for _, enemy in pairs(workspace.Enemies:GetChildren()) do
-    local leftLeg = enemy:FindFirstChild("Left Leg")
-    local rightLeg = enemy:FindFirstChild("Right Leg")
-    
-    if leftLeg then
-        local args = {
-            [1] = {
-                [1] = {
-                    [1] = "\24",
-                    [2] = leftLeg,
-                    [3] = math.huge
-                }
-            }
-        }
-        game:GetService("ReplicatedStorage"):WaitForChild("RemoteEvent"):FireServer(unpack(args))
-    end
-    
-    if rightLeg then
-        local args = {
-            [1] = {
-                [1] = {
-                    [1] = "\24",
-                    [2] = rightLeg,
-                    [3] = math.huge
-                }
-            }
-        }
-        game:GetService("ReplicatedStorage"):WaitForChild("RemoteEvent"):FireServer(unpack(args))
-    end
-    wait(0.05)
+for _, name in ipairs({"TraversalHUB", "TraversalHUB_Custom"}) do
+    local old = game.CoreGui:FindFirstChild(name)
+    if old then old:Destroy() end
 end
-   end,
-})
-local Button = PlayerTab:CreateButton({
-   Name = "DISABLE ENEMIES AI SYSTEM",
-   Callback = function()
-   for _, enemy in pairs(workspace.Enemies:GetChildren()) do
-    local enemyMain = enemy:FindFirstChild("EnemyMain")
-    if enemyMain then
-        local args = {
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "TraversalHUB"
+gui.ResetOnSpawn = false
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+gui.Parent = game.CoreGui
+
+local Themes = {
+    Dark = {
+        main       = Color3.fromRGB(12, 20, 32),
+        panel      = Color3.fromRGB(16, 26, 40),
+        title      = Color3.fromRGB(18, 28, 44),
+        button     = Color3.fromRGB(22, 34, 52),
+        buttonHov  = Color3.fromRGB(30, 44, 66),
+        stroke     = Color3.fromRGB(38, 54, 78),
+        strokeHov  = Color3.fromRGB(56, 78, 108),
+        accentDim  = Color3.fromRGB(50, 70, 100),
+        accent     = Color3.fromRGB(120, 170, 255),
+        accentGlow = Color3.fromRGB(160, 200, 255),
+        textMain   = Color3.fromRGB(255, 255, 255),
+        textNorm   = Color3.fromRGB(240, 245, 255),
+        textDim    = Color3.fromRGB(200, 215, 235),
+        textMuted  = Color3.fromRGB(160, 180, 205),
+        note       = Color3.fromRGB(170, 190, 215),
+        warn       = Color3.fromRGB(240, 170, 100),
+        closeHov   = Color3.fromRGB(180, 60, 60),
+        closeText  = Color3.fromRGB(220, 230, 245),
+        byline1    = Color3.fromRGB(220, 235, 255),
+        byline2    = Color3.fromRGB(120, 170, 255),
+        byline3    = Color3.fromRGB(255, 255, 255),
+    },
+    Bright = {
+        main       = Color3.fromRGB(235, 235, 240),
+        panel      = Color3.fromRGB(245, 245, 248),
+        title      = Color3.fromRGB(228, 228, 234),
+        button     = Color3.fromRGB(250, 250, 252),
+        buttonHov  = Color3.fromRGB(238, 238, 244),
+        stroke     = Color3.fromRGB(210, 210, 218),
+        strokeHov  = Color3.fromRGB(180, 180, 195),
+        accentDim  = Color3.fromRGB(190, 190, 200),
+        accent     = Color3.fromRGB(50, 100, 210),
+        accentGlow = Color3.fromRGB(100, 150, 240),
+        textMain   = Color3.fromRGB(0, 0, 0),
+        textNorm   = Color3.fromRGB(15, 15, 22),
+        textDim    = Color3.fromRGB(40, 40, 52),
+        textMuted  = Color3.fromRGB(70, 70, 84),
+        note       = Color3.fromRGB(80, 80, 92),
+        warn       = Color3.fromRGB(180, 90, 20),
+        closeHov   = Color3.fromRGB(220, 70, 70),
+        closeText  = Color3.fromRGB(30, 30, 40),
+        byline1    = Color3.fromRGB(20,  80, 220),
+        byline2    = Color3.fromRGB(90, 160, 255),
+        byline3    = Color3.fromRGB(230, 245, 255),
+    },
+}
+
+local currentTheme = "Bright"
+local themeRefs = {}
+
+local function register(instance, property, key)
+    themeRefs[instance] = themeRefs[instance] or {}
+    themeRefs[instance][property] = key
+end
+
+local bylineShine
+local buttonState = {}
+local stickyButtons = {}
+
+local function applyTheme(name)
+    currentTheme = name
+    local T = Themes[name]
+    for inst, props in pairs(themeRefs) do
+        if inst.Parent then
+            local skip = false
+            if inst:IsA("TextButton") and stickyButtons[inst] then
+                skip = true
+            end
+            if not skip then
+                for prop, key in pairs(props) do
+                    inst[prop] = T[key]
+                end
+            end
+        end
+    end
+
+    for btn, data in pairs(stickyButtons) do
+        if btn.Parent and data.active then
+            btn.BackgroundColor3 = data.green
+            if data.stroke then data.stroke.Color = data.greenStroke end
+            if data.label then data.label.TextColor3 = data.greenText end
+        end
+    end
+
+    for btn, data in pairs(buttonState) do
+        if btn.Parent then
+            if stickyButtons[btn] and stickyButtons[btn].active then
+            elseif data.hovered then
+                btn.BackgroundColor3 = T.buttonHov
+                if data.stroke then data.stroke.Color = T.strokeHov end
+                if data.label then data.label.TextColor3 = T.textMain end
+            else
+                btn.BackgroundColor3 = T.button
+                if data.stroke then data.stroke.Color = T.stroke end
+                if data.label then data.label.TextColor3 = T.textNorm end
+            end
+        end
+    end
+
+    if bylineShine then
+        if name == "Dark" then
+            bylineShine.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0.00, T.byline2),
+                ColorSequenceKeypoint.new(0.30, T.byline1),
+                ColorSequenceKeypoint.new(0.50, T.byline3),
+                ColorSequenceKeypoint.new(0.70, T.byline1),
+                ColorSequenceKeypoint.new(1.00, T.byline2),
+            })
+        else
+            bylineShine.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0.00, T.byline1),
+                ColorSequenceKeypoint.new(0.30, T.byline2),
+                ColorSequenceKeypoint.new(0.50, T.byline3),
+                ColorSequenceKeypoint.new(0.70, T.byline2),
+                ColorSequenceKeypoint.new(1.00, T.byline1),
+            })
+        end
+    end
+end
+
+local MIN_W, MIN_H = 480, 300
+
+local main = Instance.new("Frame")
+main.Size = UDim2.fromOffset(MIN_W, MIN_H)
+main.Position = UDim2.new(0.5, -MIN_W/2, 0.5, -MIN_H/2)
+main.BackgroundTransparency = 0.08
+main.BorderSizePixel = 0
+main.ClipsDescendants = true
+main.Parent = gui
+register(main, "BackgroundColor3", "main")
+Instance.new("UICorner", main).CornerRadius = UDim.new(0, 6)
+
+local mainStroke = Instance.new("UIStroke")
+mainStroke.Thickness = 1
+mainStroke.Transparency = 0.3
+mainStroke.Parent = main
+register(mainStroke, "Color", "stroke")
+
+local resizeHandle = Instance.new("TextButton")
+resizeHandle.Size = UDim2.fromOffset(18, 18)
+resizeHandle.Position = UDim2.new(1, -18, 1, -18)
+resizeHandle.BackgroundTransparency = 1
+resizeHandle.Text = ""
+resizeHandle.AutoButtonColor = false
+resizeHandle.Parent = main
+
+for i = 1, 3 do
+    local grip = Instance.new("Frame")
+    grip.Size = UDim2.fromOffset(2, 2 + i * 4)
+    grip.Position = UDim2.new(1, -4 - i * 4, 1, -2 - i * 2)
+    grip.BorderSizePixel = 0
+    grip.BackgroundColor3 = Color3.fromRGB(180, 180, 195)
+    grip.BackgroundTransparency = 0.4
+    grip.Rotation = 45
+    grip.ZIndex = 5
+    grip.Parent = main
+    register(grip, "BackgroundColor3", "textMuted")
+end
+
+local title = Instance.new("Frame")
+title.Size = UDim2.new(1, 0, 0, 32)
+title.BackgroundTransparency = 0.08
+title.BorderSizePixel = 0
+title.Parent = main
+register(title, "BackgroundColor3", "title")
+Instance.new("UICorner", title).CornerRadius = UDim.new(0, 6)
+
+local titleFix = Instance.new("Frame")
+titleFix.Size = UDim2.new(1, 0, 0, 12)
+titleFix.Position = UDim2.new(0, 0, 1, -12)
+titleFix.BackgroundTransparency = 0.08
+titleFix.BorderSizePixel = 0
+titleFix.Parent = title
+register(titleFix, "BackgroundColor3", "title")
+
+local brandHolder = Instance.new("Frame")
+brandHolder.Size = UDim2.new(1, -180, 1, 0)
+brandHolder.Position = UDim2.fromOffset(14, 0)
+brandHolder.BackgroundTransparency = 1
+brandHolder.Parent = title
+
+local brandLayout = Instance.new("UIListLayout")
+brandLayout.FillDirection = Enum.FillDirection.Horizontal
+brandLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+brandLayout.SortOrder = Enum.SortOrder.LayoutOrder
+brandLayout.Padding = UDim.new(0, 0)
+brandLayout.Parent = brandHolder
+
+local brand = Instance.new("TextLabel")
+brand.Size = UDim2.fromOffset(0, 20)
+brand.AutomaticSize = Enum.AutomaticSize.X
+brand.BackgroundTransparency = 1
+brand.Text = "Traversal"
+brand.Font = Enum.Font.GothamBold
+brand.TextSize = 14
+brand.TextXAlignment = Enum.TextXAlignment.Left
+brand.LayoutOrder = 1
+brand.Parent = brandHolder
+register(brand, "TextColor3", "textMain")
+
+local byline = Instance.new("TextLabel")
+byline.Size = UDim2.fromOffset(0, 20)
+byline.AutomaticSize = Enum.AutomaticSize.X
+byline.BackgroundTransparency = 1
+byline.Text = " by Semyon"
+byline.Font = Enum.Font.GothamBold
+byline.TextSize = 13
+byline.TextXAlignment = Enum.TextXAlignment.Left
+byline.LayoutOrder = 2
+byline.Parent = brandHolder
+
+bylineShine = Instance.new("UIGradient")
+bylineShine.Parent = byline
+
+local bylineGlow = Instance.new("UIStroke")
+bylineGlow.Color = Color3.fromRGB(120, 180, 255)
+bylineGlow.Thickness = 1
+bylineGlow.Transparency = 0.4
+bylineGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
+bylineGlow.Parent = byline
+
+task.spawn(function()
+    local offset, dir = 0, 1
+    local glowPulse = 0
+    while byline.Parent do
+        task.wait(0.02)
+        offset = offset + 0.018 * dir
+        if offset >= 1 then dir = -1; offset = 1 end
+        if offset <= 0 then dir = 1; offset = 0 end
+        bylineShine.Offset = Vector2.new(offset, 0)
+
+        glowPulse = glowPulse + 0.03
+        local t = (math.sin(glowPulse) + 1) * 0.5
+        bylineGlow.Transparency = 0.15 + t * 0.45
+    end
+end)
+
+local themeBtn = Instance.new("TextButton")
+themeBtn.Size = UDim2.fromOffset(50, 22)
+themeBtn.Position = UDim2.new(1, -86, 0, 5)
+themeBtn.Text = "LIGHT"
+themeBtn.Font = Enum.Font.GothamBold
+themeBtn.TextSize = 10
+themeBtn.BorderSizePixel = 0
+themeBtn.AutoButtonColor = false
+themeBtn.Parent = title
+register(themeBtn, "BackgroundColor3", "button")
+register(themeBtn, "TextColor3", "textDim")
+Instance.new("UICorner", themeBtn).CornerRadius = UDim.new(0, 4)
+
+local themeBtnStroke = Instance.new("UIStroke")
+themeBtnStroke.Thickness = 1
+themeBtnStroke.Parent = themeBtn
+register(themeBtnStroke, "Color", "stroke")
+
+themeBtn.MouseEnter:Connect(function()
+    local T = Themes[currentTheme]
+    themeBtn.BackgroundColor3 = T.buttonHov
+    themeBtnStroke.Color = T.strokeHov
+    themeBtn.TextColor3 = T.textNorm
+end)
+themeBtn.MouseLeave:Connect(function()
+    local T = Themes[currentTheme]
+    themeBtn.BackgroundColor3 = T.button
+    themeBtnStroke.Color = T.stroke
+    themeBtn.TextColor3 = T.textDim
+end)
+themeBtn.MouseButton1Click:Connect(function()
+    applyTheme(currentTheme == "Dark" and "Bright" or "Dark")
+    themeBtn.Text = currentTheme == "Dark" and "DARK" or "LIGHT"
+end)
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.fromOffset(22, 22)
+close.Position = UDim2.new(1, -30, 0, 5)
+close.Text = "×"
+close.Font = Enum.Font.GothamBold
+close.TextSize = 14
+close.BorderSizePixel = 0
+close.AutoButtonColor = false
+close.Parent = title
+register(close, "BackgroundColor3", "button")
+register(close, "TextColor3", "closeText")
+Instance.new("UICorner", close).CornerRadius = UDim.new(0, 4)
+
+close.MouseEnter:Connect(function()
+    close.BackgroundColor3 = Themes[currentTheme].closeHov
+    close.TextColor3 = Color3.fromRGB(255, 255, 255)
+end)
+close.MouseLeave:Connect(function()
+    local T = Themes[currentTheme]
+    close.BackgroundColor3 = T.button
+    close.TextColor3 = T.closeText
+end)
+close.MouseButton1Click:Connect(function()
+    gui.Enabled = false
+end)
+
+do
+    local dragging, dragStart, startPos = false, nil, nil
+    local targetPos = main.Position
+
+    title.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = main.Position
+            targetPos = main.Position
+        end
+    end)
+    UIS.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            local d = input.Position - dragStart
+            targetPos = UDim2.new(startPos.X.Scale, startPos.X.Offset + d.X, startPos.Y.Scale, startPos.Y.Offset + d.Y)
+        end
+    end)
+    UIS.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+
+    RunService.RenderStepped:Connect(function(dt)
+        if not dragging then return end
+        local factor = math.clamp(dt * 12, 0, 1)
+        main.Position = main.Position:Lerp(targetPos, factor)
+    end)
+
+    local resizing, resizeStart, startSize = false, nil, nil
+    resizeHandle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            resizing = true
+            resizeStart = input.Position
+            startSize = main.Size
+        end
+    end)
+    UIS.InputChanged:Connect(function(input)
+        if resizing and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            local d = input.Position - resizeStart
+            local newX = math.max(MIN_W, startSize.X.Offset + d.X)
+            local newY = math.max(MIN_H, startSize.Y.Offset + d.Y)
+            main.Size = UDim2.fromOffset(newX, newY)
+        end
+    end)
+    UIS.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            resizing = false
+        end
+    end)
+end
+
+local sidebar = Instance.new("Frame")
+sidebar.Size = UDim2.new(0, 155, 1, -44)
+sidebar.Position = UDim2.fromOffset(10, 38)
+sidebar.BackgroundTransparency = 0.08
+sidebar.BorderSizePixel = 0
+sidebar.Parent = main
+register(sidebar, "BackgroundColor3", "panel")
+Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0, 5)
+
+local sidebarList = Instance.new("UIListLayout")
+sidebarList.Padding = UDim.new(0, 1)
+sidebarList.SortOrder = Enum.SortOrder.LayoutOrder
+sidebarList.Parent = sidebar
+
+local sidebarPad = Instance.new("UIPadding")
+sidebarPad.PaddingTop = UDim.new(0, 6)
+sidebarPad.PaddingLeft = UDim.new(0, 6)
+sidebarPad.PaddingRight = UDim.new(0, 6)
+sidebarPad.Parent = sidebar
+
+local content = Instance.new("Frame")
+content.Size = UDim2.new(1, -185, 1, -44)
+content.Position = UDim2.fromOffset(175, 38)
+content.BackgroundTransparency = 0.08
+content.BorderSizePixel = 0
+content.Parent = main
+register(content, "BackgroundColor3", "panel")
+Instance.new("UICorner", content).CornerRadius = UDim.new(0, 5)
+
+local tabs = {}
+
+local function tab(name)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, 0, 0, 26)
+    btn.BorderSizePixel = 0
+    btn.Text = ""
+    btn.AutoButtonColor = false
+    btn.Parent = sidebar
+    register(btn, "BackgroundColor3", "panel")
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
+
+    local accent = Instance.new("Frame")
+    accent.Size = UDim2.new(0, 2, 0, 14)
+    accent.Position = UDim2.new(0, 4, 0.5, -7)
+    accent.BorderSizePixel = 0
+    accent.Parent = btn
+    register(accent, "BackgroundColor3", "accentDim")
+
+    local accentGlow = Instance.new("Frame")
+    accentGlow.Size = UDim2.new(0, 6, 0, 18)
+    accentGlow.Position = UDim2.new(0, 2, 0.5, -9)
+    accentGlow.BackgroundColor3 = Themes[currentTheme].accentGlow
+    accentGlow.BackgroundTransparency = 1
+    accentGlow.BorderSizePixel = 0
+    accentGlow.ZIndex = 0
+    accentGlow.Parent = btn
+    Instance.new("UICorner", accentGlow).CornerRadius = UDim.new(0, 3)
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -20, 1, 0)
+    label.Position = UDim2.fromOffset(14, 0)
+    label.BackgroundTransparency = 1
+    label.Text = name
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 12
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = btn
+    register(label, "TextColor3", "textDim")
+
+    local page = Instance.new("ScrollingFrame")
+    page.Size = UDim2.new(1, -16, 1, -16)
+    page.Position = UDim2.fromOffset(8, 8)
+    page.BackgroundTransparency = 1
+    page.BorderSizePixel = 0
+    page.CanvasSize = UDim2.new(0, 0, 0, 0)
+    page.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    page.ScrollBarThickness = 3
+    page.ScrollBarImageColor3 = Color3.fromRGB(70, 70, 82)
+    page.Visible = false
+    page.Parent = content
+
+    local pageList = Instance.new("UIListLayout")
+    pageList.Padding = UDim.new(0, 6)
+    pageList.SortOrder = Enum.SortOrder.LayoutOrder
+    pageList.Parent = page
+
+    local entry = { button = btn, label = label, accent = accent, accentGlow = accentGlow, page = page }
+    tabs[#tabs + 1] = entry
+
+    btn.MouseEnter:Connect(function()
+        if page.Visible then return end
+        local T = Themes[currentTheme]
+        btn.BackgroundColor3 = T.buttonHov
+        label.TextColor3 = T.textNorm
+    end)
+    btn.MouseLeave:Connect(function()
+        if page.Visible then return end
+        local T = Themes[currentTheme]
+        btn.BackgroundColor3 = T.panel
+        label.TextColor3 = T.textDim
+    end)
+
+    btn.MouseButton1Click:Connect(function()
+        local T = Themes[currentTheme]
+        for _, t in ipairs(tabs) do
+            t.page.Visible = false
+            t.button.BackgroundColor3 = T.panel
+            t.label.TextColor3 = T.textDim
+            t.accent.BackgroundColor3 = T.accentDim
+            TweenService:Create(t.accentGlow, TweenInfo.new(0.25), { BackgroundTransparency = 1 }):Play()
+        end
+        page.Visible = true
+        btn.BackgroundColor3 = T.button
+        label.TextColor3 = T.textMain
+        accent.BackgroundColor3 = T.accent
+
+        accentGlow.BackgroundColor3 = T.accentGlow
+        accentGlow.BackgroundTransparency = 0.4
+        TweenService:Create(accentGlow, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            BackgroundTransparency = 0.85
+        }):Play()
+        TweenService:Create(accent, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Size = UDim2.new(0, 3, 0, 18)
+        }):Play()
+        task.delay(0.35, function()
+            TweenService:Create(accent, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                Size = UDim2.new(0, 2, 0, 14)
+            }):Play()
+        end)
+    end)
+
+    return entry
+end
+
+local FLASH_GREEN        = Color3.fromRGB(60, 190, 90)
+local FLASH_GREEN_STROKE = Color3.fromRGB(90, 230, 120)
+local FLASH_GREEN_TEXT   = Color3.fromRGB(255, 255, 255)
+
+local function button(page, text, callback, opts)
+    opts = opts or {}
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, 0, 0, 30)
+    btn.BorderSizePixel = 0
+    btn.Text = ""
+    btn.AutoButtonColor = false
+    btn.Parent = page
+    register(btn, "BackgroundColor3", "button")
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
+
+    local stroke = Instance.new("UIStroke")
+    stroke.Thickness = 1
+    stroke.Parent = btn
+    register(stroke, "Color", "stroke")
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -20, 1, 0)
+    label.Position = UDim2.fromOffset(10, 0)
+    label.BackgroundTransparency = 1
+    label.Text = text
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 12
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.TextTruncate = Enum.TextTruncate.AtEnd
+    label.Parent = btn
+    register(label, "TextColor3", "textNorm")
+
+    local sticky = opts.sticky == true
+    local stateData = { hovered = false, stroke = stroke, label = label }
+    buttonState[btn] = stateData
+
+    local stickyData = {
+        active = false,
+        green = FLASH_GREEN,
+        greenStroke = FLASH_GREEN_STROKE,
+        greenText = FLASH_GREEN_TEXT,
+        stroke = stroke,
+        label = label,
+    }
+    stickyButtons[btn] = stickyData
+
+    local function paintIdle()
+        if sticky and stickyData.active then
+            btn.BackgroundColor3 = FLASH_GREEN
+            stroke.Color = FLASH_GREEN_STROKE
+            label.TextColor3 = FLASH_GREEN_TEXT
+            return
+        end
+        local T = Themes[currentTheme]
+        if stateData.hovered then
+            btn.BackgroundColor3 = T.buttonHov
+            stroke.Color = T.strokeHov
+            label.TextColor3 = T.textMain
+        else
+            btn.BackgroundColor3 = T.button
+            stroke.Color = T.stroke
+            label.TextColor3 = T.textNorm
+        end
+    end
+
+    btn.MouseEnter:Connect(function()
+        stateData.hovered = true
+        if sticky and stickyData.active then return end
+        local T = Themes[currentTheme]
+        btn.BackgroundColor3 = T.buttonHov
+        stroke.Color = T.strokeHov
+        label.TextColor3 = T.textMain
+    end)
+    btn.MouseLeave:Connect(function()
+        stateData.hovered = false
+        paintIdle()
+    end)
+
+    btn.MouseButton1Click:Connect(function()
+        btn.BackgroundColor3 = FLASH_GREEN
+        stroke.Color = FLASH_GREEN_STROKE
+        label.TextColor3 = FLASH_GREEN_TEXT
+
+        if sticky then
+            stickyData.active = true
+        else
+            task.delay(0.35, function()
+                if btn.Parent then paintIdle() end
+            end)
+        end
+
+        local ok, err = pcall(callback)
+        if not ok then warn("[Traversal] callback error: " .. tostring(err)) end
+    end)
+
+    stateData.paint = paintIdle
+
+    return btn
+end
+
+local function note(page, text, color)
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(1, 0, 0, 16)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = text
+    lbl.Font = Enum.Font.GothamBold
+    lbl.TextSize = 11
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.TextWrapped = true
+    lbl.Parent = page
+    if color then
+        lbl.TextColor3 = color
+    else
+        register(lbl, "TextColor3", "note")
+    end
+    return lbl
+end
+
+local function header(page, text)
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(1, 0, 0, 18)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = text
+    lbl.Font = Enum.Font.GothamBold
+    lbl.TextSize = 11
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.Parent = page
+    register(lbl, "TextColor3", "textMuted")
+    return lbl
+end
+
+local t = tab("Update Logs")
+header(t.page, "CHANGELOG - Oct 5th 2026")
+note(t.page, "Added couple of new options", Color3.fromRGB(60, 190, 90))
+note(t.page, "New UI", Color3.fromRGB(60, 190, 90))
+header(t.page, "Controls")
+note(t.page, "K  —  toggle UI")
+note(t.page, "M  —  unlock cursor")
+
+local t = tab("Godmode")
+button(t.page, "Enable Godmode", function()
+    while true do
+        task.wait()
+        local args = {[1] = {[1] = {"\25", LP.Character.Humanoid, math.huge}}}
+        RS:WaitForChild("RemoteEvent"):FireServer(unpack(args))
+    end
+end, { sticky = true })
+
+local t = tab("Delete Tool")
+button(t.page, "Enable UI", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/YegozovutSemyon/TraversalHUB/refs/heads/main/deletemenu"))()
+end)
+header(t.page, "Hotkeys")
+note(t.page, "V  —  toggle delete mode")
+note(t.page, "E  —  delete targeted object")
+note(t.page, "Enter  —  delete by path")
+
+local t = tab("Enemies")
+
+local function fireEnemyDelete(target)
+    local args = {
+        [1] = {
             [1] = {
-                [1] = {
-                    [1] = "\24",
-                    [2] = enemyMain,
-                    [3] = math.huge
-                }
+                [1] = "\24",
+                [2] = target,
+                [3] = math.huge
             }
         }
-        game:GetService("ReplicatedStorage"):WaitForChild("RemoteEvent"):FireServer(unpack(args))
-    end
-    wait(0.05)
+    }
+    RS:WaitForChild("RemoteEvent"):FireServer(unpack(args))
 end
-   end,
-})
-local Button = PlayerTab:CreateButton({
-   Name = "DELETE WEAPONS FROM ENEMIES",
-   Callback = function()
-   for _, enemy in pairs(workspace.Enemies:GetChildren()) do
-    for _, descendant in pairs(enemy:GetDescendants()) do
-        if descendant.Name == "PrimaryHandle" or descendant.Name == "SecondaryHandle" or descendant.Name == "Handle" then
+
+button(t.page, "Remove Legs", function()
+    for _, enemy in pairs(workspace.Enemies:GetChildren()) do
+        local leftLeg = enemy:FindFirstChild("Left Leg")
+        local rightLeg = enemy:FindFirstChild("Right Leg")
+        if leftLeg then fireEnemyDelete(leftLeg) end
+        if rightLeg then fireEnemyDelete(rightLeg) end
+        task.wait(0.05)
+    end
+end)
+
+button(t.page, "Remove Head", function()
+    for _, enemy in pairs(workspace.Enemies:GetChildren()) do
+        local head = enemy:FindFirstChild("Head")
+        if head then fireEnemyDelete(head) end
+        task.wait(0.05)
+    end
+end)
+
+button(t.page, "Remove Hands", function()
+    for _, enemy in pairs(workspace.Enemies:GetChildren()) do
+        local leftArm = enemy:FindFirstChild("Left Arm") or enemy:FindFirstChild("LeftArm")
+        local rightArm = enemy:FindFirstChild("Right Arm") or enemy:FindFirstChild("RightArm")
+        if leftArm then fireEnemyDelete(leftArm) end
+        if rightArm then fireEnemyDelete(rightArm) end
+        task.wait(0.05)
+    end
+end)
+
+button(t.page, "Disable AI", function()
+    for _, enemy in pairs(workspace.Enemies:GetChildren()) do
+        local enemyMain = enemy:FindFirstChild("EnemyMain")
+        if enemyMain then
             local args = {
                 [1] = {
                     [1] = {
                         [1] = "\24",
-                        [2] = descendant,
+                        [2] = enemyMain,
                         [3] = math.huge
                     }
                 }
             }
-            game:GetService("ReplicatedStorage"):WaitForChild("RemoteEvent"):FireServer(unpack(args))
+            RS:WaitForChild("RemoteEvent"):FireServer(unpack(args))
         end
-    end
-    wait(0.05)
-end
-
-   end,
-})
-
-local PlayerTab = Window:CreateTab("WEAPONS", "swords")
-local Button = PlayerTab:CreateButton({
-   Name = "SPAWN WEAPONS",
-   Callback = function()
-      local targetRemote = game:GetService("ReplicatedStorage"):WaitForChild("RemoteEvent")
-
-local weaponsToSpawn = {
-    "Bat",
-    "Knife", 
-    "Axe",
-    "Machete",
-    "Crowbar",
-    "Chainsaw",
-    "Katana",
-}
-
-for _, weaponName in pairs(weaponsToSpawn) do
-    local weapon = workspace:FindFirstChild(weaponName, true) 
-    
-    if weapon then
-        local args = {
-            {
-                {
-                    "\016",
-                    weapon
-                }
-            }
-        }
-        targetRemote:FireServer(unpack(args))
-    end
-    
-    wait(0.2)
-end
-
-local workspaceFolders = {
-    "Weapons",
-    "Tools",
-    "Items", 
-    "Drops",
-    "SpawnedItems"
-}
-
-for _, folderName in pairs(workspaceFolders) do
-    local folder = workspace:FindFirstChild(folderName)
-    if folder then
-        for _, weaponName in pairs(weaponsToSpawn) do
-            local weapon = folder:FindFirstChild(weaponName)
-            if weapon then
-                local args = {
-                    {
-                        {
-                            "\016",
-                            weapon
-                        }
-                    }
-                }
-                targetRemote:FireServer(unpack(args))
-                wait(0.2)
-            end
-        end
-    end
-end
-   end,
-})
-local Label = PlayerTab:CreateLabel("SPAM + MOVING = DUPLICATE WEAPONS!", "info")
-local Label = PlayerTab:CreateLabel("CLICK BUTTON BELOW TO MOD WEAPONS", "info")
-local Button = PlayerTab:CreateButton({
-  Name = "APPLY ONE-HIT MOD TO WEAPONS",
-  Callback = function()
-     local char = game.Players.LocalPlayer.Character
-local scriptPath = char:FindFirstChild("ClientCode")
-local weapons = {"Bat", "Knife", "Axe", "Machete", "Crowbar", "Chainsaw", "Katana"}
-
-for _, tool in pairs(char:GetChildren()) do
-    if table.find(weapons, tool.Name) then
-        tool:SetAttribute("StaminaCost", 0)
-        tool:SetAttribute("Damage", 100)
-    end
-end
-
-local staminaFunction = nil
-for _, v in pairs(getgc()) do
-    if type(v) == "function" and getfenv(v).script == scriptPath then
-        local upvalues = debug.getupvalues(v)
-        if upvalues[76] == 100 or (type(upvalues[76]) == "number" and upvalues[76] > 0) then
-            staminaFunction = v
-            break
-        end
-    end
-end
-
-game:GetService("RunService").Heartbeat:Connect(function()
-    if staminaFunction then
-        debug.setupvalue(staminaFunction, 76, 100)
+        task.wait(0.05)
     end
 end)
 
-   end,
-})
+button(t.page, "Strip Enemy Weapons", function()
+    for _, enemy in pairs(workspace.Enemies:GetChildren()) do
+        for _, descendant in pairs(enemy:GetDescendants()) do
+            if descendant.Name == "PrimaryHandle" or descendant.Name == "SecondaryHandle" or descendant.Name == "Handle" then
+                local args = {
+                    [1] = {
+                        [1] = {
+                            [1] = "\24",
+                            [2] = descendant,
+                            [3] = math.huge
+                        }
+                    }
+                }
+                RS:WaitForChild("RemoteEvent"):FireServer(unpack(args))
+            end
+        end
+        task.wait(0.05)
+    end
+end)
 
-local PlayerTab = Window:CreateTab("Sigma Boi AURA", "eye-off")
-local Button = PlayerTab:CreateButton({
-   Name = "Trun ON THIS SIGMA AURA, BOI !",
-   Callback = function()
-      local ReplicatedStorage = game:GetService("ReplicatedStorage")
-      local remoteEvent = ReplicatedStorage:WaitForChild("RemoteEvent")
-      for i = 1, 30 do
-         local codeChar = string.char(i)
-         local args = {
-            {
-               { codeChar, "True" }
+local t = tab("Other Player")
+
+local function getOtherPlayer()
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= LP then
+            return p
+        end
+    end
+    return nil
+end
+
+local function firePlayerDelete(target)
+    local args = {
+        [1] = {
+            [1] = {
+                [1] = "\24",
+                [2] = target,
+                [3] = math.huge
             }
-         }
-         pcall(function()
-            remoteEvent:FireServer(unpack(args))
-         end)
-         wait(0.1)
-      end
-   end,
-})
+        }
+    }
+    RS:WaitForChild("RemoteEvent"):FireServer(unpack(args))
+end
 
-local Button = PlayerTab:CreateButton({
-   Name = "Trun OFF",
-   Callback = function()
-      local ReplicatedStorage = game:GetService("ReplicatedStorage")
-      local remoteEvent = ReplicatedStorage:WaitForChild("RemoteEvent")
-      for i = 1, 30 do
-         local codeChar = string.char(i)
-         local args = {
-            {
-               { codeChar, "False" }
-            }
-         }
-         pcall(function()
-            remoteEvent:FireServer(unpack(args))
-         end)
-         wait(0.1)
-      end
-   end,
-})
+local function withOther(fn)
+    local other = getOtherPlayer()
+    if not other or not other.Character then return end
+    fn(other.Character)
+end
 
-local Label = PlayerTab:CreateLabel("IF U TRUN OFF SIGMA BOI AND THEY ARE FOLLOWING YOU, RIP, YOU'RE COOKED", "triangle-alert")
-local Paragraph = PlayerTab:CreateParagraph({Title = "", Content = ""})
-local Label = PlayerTab:CreateLabel("REMEMBER: IF U CLICKED RIGHT MOUSE U WILL LOSE THE AURA AND THEY WILL START HITTING U", "triangle-alert")
-local Paragraph = PlayerTab:CreateParagraph({Title = "", Content = ""})
-local Label = PlayerTab:CreateLabel("THAT OPTION MAKES U A FRIEND OF THE ENEMIES MAYBE? THEY CAN'T HIT U, BUT THEY ALWAYS WILL BE FOLLOWING U, PLAY WITH ANOTHER PLAYER AND SHOW HIM UR SIGMA AURA, BOI", "info")
+button(t.page, "Delete Left Leg", function()
+    withOther(function(char)
+        local l = char:FindFirstChild("Left Leg")
+        if l then firePlayerDelete(l) end
+    end)
+end)
 
-local PlayerTab = Window:CreateTab("Masks Unlocker", "lock-open")
-local Button = PlayerTab:CreateButton({
-   Name = "Wear Clown's Mask",
-   Callback = function()
-      local ReplicatedStorage = game:GetService("ReplicatedStorage")
-      local RemoteEvent = ReplicatedStorage.RemoteEvent
-      local ClownMask = ReplicatedStorage.Gamepasses.ClownMask
-      RemoteEvent:FireServer({
-         {
-            "\31",
-            ClownMask
-         }
-      })
-   end,
-})
+button(t.page, "Delete Right Leg", function()
+    withOther(function(char)
+        local r = char:FindFirstChild("Right Leg")
+        if r then firePlayerDelete(r) end
+    end)
+end)
 
-local Button = PlayerTab:CreateButton({
-   Name = "Wear Tengu's Mask",
-   Callback = function()
-      local ReplicatedStorage = game:GetService("ReplicatedStorage")
-      local RemoteEvent = ReplicatedStorage.RemoteEvent
-      local TenguMask = ReplicatedStorage.Gamepasses.TenguMask
-      RemoteEvent:FireServer({
-         {
-            "\31",
-            TenguMask
-         }
-      })
-   end,
-})
+button(t.page, "Delete Left Arm", function()
+    withOther(function(char)
+        local la = char:FindFirstChild("Left Arm") or char:FindFirstChild("LeftArm")
+        if la then firePlayerDelete(la) end
+    end)
+end)
 
-local Button = PlayerTab:CreateButton({
-   Name = "Wear Smile's Mask",
-   Callback = function()
-      local ReplicatedStorage = game:GetService("ReplicatedStorage")
-      local RemoteEvent = ReplicatedStorage.RemoteEvent
-      local SmileMask = ReplicatedStorage.Gamepasses.SmileMask
-      RemoteEvent:FireServer({
-         {
-            "\31",
-            SmileMask
-         }
-      })
-   end,
-})
+button(t.page, "Delete Right Arm", function()
+    withOther(function(char)
+        local ra = char:FindFirstChild("Right Arm") or char:FindFirstChild("RightArm")
+        if ra then firePlayerDelete(ra) end
+    end)
+end)
 
-local Label = PlayerTab:CreateLabel("ENJOY!", "heart")
-local Label = PlayerTab:CreateLabel("UPDATED ON 24/07 WITH NEW METHOD, IT'S NOW FE AND U CAN TALK IN CHAT NORMALY", "info")
+button(t.page, "Delete Weapons", function()
+    withOther(function(char)
+        for _, d in pairs(char:GetDescendants()) do
+            if d.Name == "PrimaryHandle" or d.Name == "SecondaryHandle" or d.Name == "Handle" then
+                firePlayerDelete(d)
+            end
+        end
+    end)
+end)
 
-local PlayerTab = Window:CreateTab("Credits", "square-code")
-local Label = PlayerTab:CreateLabel("Semyon", "user-round-cog")
-local Label = PlayerTab:CreateLabel("Rayfield UI", "paint-roller")
+local t = tab("Weapons")
+header(t.page, "Spawning")
+button(t.page, "Spawn Weapons", function()
+    local remote = RS:WaitForChild("RemoteEvent")
+    local list = {"Bat", "Knife", "Axe", "Machete", "Crowbar", "Chainsaw", "Katana"}
+    for _, name in pairs(list) do
+        local w = workspace:FindFirstChild(name, true)
+        if w then remote:FireServer({{"\016", w}}) end
+        task.wait(0.2)
+    end
+end)
+note(t.page, "Spam + move to duplicate weapons")
+header(t.page, "Modding")
+button(t.page, "Apply One-Hit", function()
+    local char = LP.Character
+    local path = char:FindFirstChild("ClientCode")
+    local list = {"Bat", "Knife", "Axe", "Machete", "Crowbar", "Chainsaw", "Katana"}
+    for _, tool in pairs(char:GetChildren()) do
+        if table.find(list, tool.Name) then
+            tool:SetAttribute("StaminaCost", 0)
+            tool:SetAttribute("Damage", 100)
+        end
+    end
+    local fn
+    for _, v in pairs(getgc()) do
+        if type(v) == "function" and getfenv(v).script == path then
+            local up = debug.getupvalues(v)
+            if up[76] == 100 or (type(up[76]) == "number" and up[76] > 0) then
+                fn = v
+                break
+            end
+        end
+    end
+    RunService.Heartbeat:Connect(function()
+        if fn then debug.setupvalue(fn, 76, 100) end
+    end)
+end)
+
+local t = tab("Sigma Aura")
+header(t.page, "Aura")
+button(t.page, "Enable", function()
+    local remote = RS:WaitForChild("RemoteEvent")
+    for i = 1, 30 do
+        pcall(function() remote:FireServer({{string.char(i), "True"}}) end)
+        task.wait(0.1)
+    end
+end)
+button(t.page, "Disable", function()
+    local remote = RS:WaitForChild("RemoteEvent")
+    for i = 1, 30 do
+        pcall(function() remote:FireServer({{string.char(i), "False"}}) end)
+        task.wait(0.1)
+    end
+end)
+note(t.page, "Disabling while enemies follow you = death", Themes[currentTheme].warn)
+note(t.page, "Right-click removes the aura", Themes[currentTheme].warn)
+
+local t = tab("Masks")
+header(t.page, "Unlock")
+local function wearMask(name)
+    local mask = RS.Gamepasses:FindFirstChild(name)
+    if mask then RS.RemoteEvent:FireServer({{"\31", mask}}) end
+end
+button(t.page, "Clown Mask", function() wearMask("ClownMask") end)
+button(t.page, "Tengu Mask", function() wearMask("TenguMask") end)
+button(t.page, "Smile Mask", function() wearMask("SmileMask") end)
+
+if tabs[1] then
+    local T = Themes[currentTheme]
+    tabs[1].page.Visible = true
+    tabs[1].button.BackgroundColor3 = T.button
+    tabs[1].label.TextColor3 = T.textMain
+    tabs[1].accent.BackgroundColor3 = T.accent
+end
+
+applyTheme(currentTheme)
+themeBtn.Text = currentTheme == "Dark" and "DARK" or "LIGHT"
+
+UIS.InputBegan:Connect(function(input, processed)
+    if processed then return end
+    if input.KeyCode == Enum.KeyCode.K then
+        gui.Enabled = not gui.Enabled
+    elseif input.KeyCode == Enum.KeyCode.M then
+        LP:GetMouse().Icon = ""
+    end
+end)
